@@ -1,12 +1,20 @@
 package shopping_cart;
 
+import java.util.List;
+
 public class ShoppingCartSystem {
     private ShoppingCart shoppingCart;
     private ShopCatalog shopCatalog;
+    private PaymentService paymentService;
+    private PaymentMethod paymentMethod;
+    private ShippingAddress shippingAddress;
 
-    public ShoppingCartSystem(ShopCatalog shopCatalog) {
+    public ShoppingCartSystem(ShopCatalog shopCatalog, PaymentService paymentService) {
         this.shopCatalog = shopCatalog;
         this.shoppingCart = new ShoppingCart();
+        this.paymentService = paymentService;
+        this.paymentMethod = null;
+        this.shippingAddress = null;
     }
 
     public void addProduct(String productID, int quantity) {
@@ -42,6 +50,45 @@ public class ShoppingCartSystem {
         checkProductInStock(productID, quantity);
 
         shoppingCart.changeQuantityOfProduct(productID, quantity);
+    }
+
+    public void selectCreditCard(String cardNumber, String expiryDate, String cvv, String cardHolderName){
+        paymentMethod = new CreditCardPaymentMethod(cardNumber, expiryDate, cvv, cardHolderName);
+    }
+
+    public void selectPayPal(String paypalEmail, String paypalAuthToken){
+        paymentMethod = new PayPalPaymentMethod(paypalEmail, paypalAuthToken);
+    }
+
+    public void selectShippingAddress(String country, String customerName, String street, String postalCode, String city){
+        shippingAddress = new ShippingAddress(country, customerName, street, postalCode, city);
+    }
+
+    public boolean processPayment(){
+        if(paymentMethod == null){
+            throw new IllegalArgumentException("Invalid paymentMethod");
+        } else if (shippingAddress == null) {
+            throw new IllegalArgumentException("Invalid shippingAddress");
+        }
+        List<Product> products = shoppingCart.getProducts();
+        for(Product product : products){
+            checkProductInStock(product.getProductID(), product.getQuantity());
+        }
+
+        if(paymentService.processPayment(shippingAddress, paymentMethod, getTotalCost())){
+            shoppingCart = new ShoppingCart();
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public ShippingAddress getShippingAddress(){
+        return shippingAddress;
+    }
+
+    public PaymentMethod getPaymentMethod(){
+        return paymentMethod;
     }
 
     public double getTotalCost() {

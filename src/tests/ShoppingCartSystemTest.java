@@ -11,11 +11,13 @@ import org.mockito.stubbing.Answer;
 public class ShoppingCartSystemTest {
     private ShoppingCartSystem shoppingCartSystem;
     private ShopCatalog mockShopCatalog;
+    private PaymentService mockPaymentService;
 
     @BeforeMethod
     public void setUp() {
         mockShopCatalog = mock(ShopCatalog.class);
-        shoppingCartSystem = new ShoppingCartSystem(mockShopCatalog);
+        mockPaymentService = mock(PaymentService.class);
+        shoppingCartSystem = new ShoppingCartSystem(mockShopCatalog, mockPaymentService);
 
         when(mockShopCatalog.getProductPrice("Product1")).thenReturn(2.99);
         when(mockShopCatalog.getProductPrice("Product2")).thenReturn(1.99);
@@ -34,7 +36,7 @@ public class ShoppingCartSystemTest {
             return quantity < 30;
         });
     }
-
+    // 1. Add Product
     @Test
     public void testAddProductToCart() {
         ShoppingCart shoppingCart = shoppingCartSystem.viewCart();
@@ -55,7 +57,7 @@ public class ShoppingCartSystemTest {
         shoppingCartSystem.addProduct("Product1", 2);
         ShoppingCart shoppingCart = shoppingCartSystem.viewCart();
         Product addedProduct = shoppingCart.getProducts().get(0);
-        Assert.assertEquals(addedProduct.getProductID(), "Product1", "The product name should be 'Chips'.");
+        Assert.assertEquals(addedProduct.getProductID(), "Product1", "The product name should be 'Product1'.");
         Assert.assertEquals(addedProduct.getQuantity(), 2, "The product quantity should be 2.");
         Assert.assertEquals(addedProduct.getPrice(), 2.99, "The product price should be 2.99.");
     }
@@ -93,6 +95,7 @@ public class ShoppingCartSystemTest {
         shoppingCartSystem.addProduct(null, 2);
     }
 
+    // Remove Product
     @Test
     public void testRemoveProductFromCart() {
         shoppingCartSystem.addProduct("Product1", 2);
@@ -141,19 +144,20 @@ public class ShoppingCartSystemTest {
         Assert.assertEquals(shoppingCart.getProducts().size(), 1, "The shopping cart should still contain one product when trying to remove with a null name.");
     }
 
+    // Change Quantity
     @Test
     public void testChangeQuantityOfProduct() {
         shoppingCartSystem.addProduct("Product1", 2);
         ShoppingCart shoppingCart = shoppingCartSystem.viewCart();
         Product product = shoppingCart.getProducts().get(0);
-        Assert.assertEquals(product.getProductID(), "Product1", "The product name should be 'Chips'.");
+        Assert.assertEquals(product.getProductID(), "Product1", "The product name should be 'Product1'.");
         Assert.assertEquals(product.getQuantity(), 2, "The initial product quantity should be 2.");
 
         shoppingCartSystem.changeQuantityOfProduct("Product1", 5);
 
         shoppingCart = shoppingCartSystem.viewCart();
         product = shoppingCart.getProducts().get(0);
-        Assert.assertEquals(product.getProductID(), "Product1", "The product name should be 'Chips'.");
+        Assert.assertEquals(product.getProductID(), "Product1", "The product name should be 'Product1'.");
         Assert.assertEquals(product.getQuantity(), 5, "The product quantity should be updated to 5.");
     }
 
@@ -185,6 +189,7 @@ public class ShoppingCartSystemTest {
         shoppingCartSystem.changeQuantityOfProduct(null, 5);
     }
 
+    // Get Total Cost
     @Test
     public void testGetTotalCost() {
         shoppingCartSystem.addProduct("Product1", 2);
@@ -195,6 +200,98 @@ public class ShoppingCartSystemTest {
         Assert.assertEquals(totalCost, 2.99 * 2 + 1.99 * 4);
     }
 
+    @Test
+    public void testGetTotalCostWithNoProducts() {
+        double totalCost = shoppingCartSystem.getTotalCost();
+        Assert.assertEquals(totalCost, 0 );
+    }
+
+    // Select Payment Method
+    @Test
+    public void testSelectCreditCard(){
+        shoppingCartSystem.selectCreditCard("4111111111111111", "12/25", "123", "Sam Smith");
+
+        PaymentMethod paymentMethod =  shoppingCartSystem.getPaymentMethod();
+        Assert.assertEquals(paymentMethod.getMethodType(), "creditCard" );
+
+        CreditCardPaymentMethod creditCardPaymentMethod = (CreditCardPaymentMethod) paymentMethod;
+        Assert.assertEquals(creditCardPaymentMethod.getCardNumber(), "4111111111111111" );
+        Assert.assertEquals(creditCardPaymentMethod.getCardHolderName(), "Sam Smith" );
+        Assert.assertEquals(creditCardPaymentMethod.getExpiryDate(), "12/25" );
+        Assert.assertEquals(creditCardPaymentMethod.getCvv(), "123" );
+    }
+
+    @Test
+    public void testSelectPayPal(){
+        shoppingCartSystem.selectPayPal("sam.smith@example.com", "example-auth-token");
+
+        PaymentMethod paymentMethod =  shoppingCartSystem.getPaymentMethod();
+        Assert.assertEquals(paymentMethod.getMethodType(), "paypal" );
+
+        PayPalPaymentMethod payPalPaymentMethod = (PayPalPaymentMethod) paymentMethod;
+        Assert.assertEquals(payPalPaymentMethod.getPaypalEmail(), "sam.smith@example.com" );
+        Assert.assertEquals(payPalPaymentMethod.getPaypalAuthToken(), "example-auth-token" );
+    }
+
+    @Test
+    public void testSwitchPaymentMethod(){
+        shoppingCartSystem.selectPayPal("sam.smith@example.com", "example-auth-token");
+        PaymentMethod paymentMethod =  shoppingCartSystem.getPaymentMethod();
+        Assert.assertEquals(paymentMethod.getMethodType(), "paypal" );
+
+        shoppingCartSystem.selectCreditCard("4111111111111111", "Sam Smith", "12/25", "123");
+        paymentMethod =  shoppingCartSystem.getPaymentMethod();
+        Assert.assertEquals(paymentMethod.getMethodType(), "creditCard" );
+    }
+
+    @Test
+    public void testSelectShippingAddress(){
+        shoppingCartSystem.selectShippingAddress("Germany", "Sam Smith", "Street 1", "55555", "City");
+        ShippingAddress shippingAddress = shoppingCartSystem.getShippingAddress();
+
+        Assert.assertEquals(shippingAddress.getCountry(), "Germany" );
+        Assert.assertEquals(shippingAddress.getCustomerName(), "Sam Smith" );
+        Assert.assertEquals(shippingAddress.getStreet(), "Street 1" );
+        Assert.assertEquals(shippingAddress.getPostalCode(), "55555" );
+        Assert.assertEquals(shippingAddress.getCity(), "City" );
+
+    }
+
+    @Test
+    public void testChangeShippingAddress(){
+        shoppingCartSystem.selectShippingAddress("Germany", "Sam Smith", "Street 1", "55555", "City");
+        shoppingCartSystem.selectShippingAddress("Poland", "Tom Smith", "Street 11", "51111", "new City");
+
+        ShippingAddress shippingAddress = shoppingCartSystem.getShippingAddress();
+
+        Assert.assertEquals(shippingAddress.getCountry(), "Poland" );
+        Assert.assertEquals(shippingAddress.getCustomerName(), "Tom Smith" );
+        Assert.assertEquals(shippingAddress.getStreet(), "Street 11" );
+        Assert.assertEquals(shippingAddress.getPostalCode(), "51111" );
+        Assert.assertEquals(shippingAddress.getCity(), "new City" );
+    }
+
+    @Test
+    public void testProcessPayment(){
+        shoppingCartSystem.addProduct("Product1", 4);
+        shoppingCartSystem.addProduct("Product2", 6);
+        shoppingCartSystem.addProduct("Product3", 10);
+
+        shoppingCartSystem.selectShippingAddress("Germany", "Sam Smith", "Street 1", "55555", "City");
+        shoppingCartSystem.selectPayPal("sam.smith@example.com", "example-auth-token");
+
+        when(mockPaymentService.processPayment(any(ShippingAddress.class), any(PaymentMethod.class), anyDouble())).thenReturn(true);
+
+        boolean paymentSuccessful = shoppingCartSystem.processPayment();
+
+        Assert.assertTrue(paymentSuccessful, "The payment should be successful.");
+
+        ShoppingCart shoppingCart = shoppingCartSystem.viewCart();
+        Assert.assertEquals(shoppingCart.getProducts().size(), 0, "The shopping cart should be empty after a successful payment.");
+        verify(mockPaymentService, times(1)).processPayment(any(ShippingAddress.class), any(PaymentMethod.class), anyDouble());
+    }
+
+    // Check Product Availability
     @Test
     public void testProductAvailability(){
         shoppingCartSystem.addProduct("Product1", 5);
