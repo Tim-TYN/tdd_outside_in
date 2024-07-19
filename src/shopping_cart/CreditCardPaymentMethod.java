@@ -1,5 +1,7 @@
 package shopping_cart;
 
+import static org.testng.util.Strings.isNullOrEmpty;
+
 public class CreditCardPaymentMethod extends PaymentMethod {
     private String cardNumber;
     private String expiryDate;
@@ -9,7 +11,7 @@ public class CreditCardPaymentMethod extends PaymentMethod {
     public CreditCardPaymentMethod(String cardNumber, String expiryDate, String cvv, String cardHolderName) {
         super("creditCard");
 
-        if (cardNumber == null || expiryDate == null || cvv == null || cardHolderName == null) {
+        if (isNullOrEmpty(cardNumber) || isNullOrEmpty(expiryDate) || isNullOrEmpty(cvv) || isNullOrEmpty(cardHolderName)) {
             throw new IllegalArgumentException("Invalid credit card details");
         }
         this.cardNumber = cardNumber;

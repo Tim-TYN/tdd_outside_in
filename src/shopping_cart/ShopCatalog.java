@@ -1,14 +1,26 @@
 package shopping_cart;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ShopCatalog {
 
+    private Map<String, Product> products = new HashMap<>();
+
     public double getProductPrice(String productID){
-        // TODO: Not implemented
-        return 0.0;
+        if (!products.containsKey(productID)) {
+            throw new IllegalArgumentException("Product not found in catalog");
+        }
+        return products.get(productID).getPrice();
     }
 
     public boolean isProductAvailable(String productID, int quantity){
-        // TODO: Not implemented
-        return true;
+        if (!products.containsKey(productID)) {
+            throw new IllegalArgumentException("Product not found in catalog");
+        }
+        return products.get(productID).getQuantity() >= quantity;
+    }
+
+    public void addProduct(String productID, double price, int quantity){
+        products.put(productID, new Product(productID, quantity, price));
     }
 }

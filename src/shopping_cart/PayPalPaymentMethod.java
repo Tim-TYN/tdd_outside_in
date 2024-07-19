@@ -1,5 +1,7 @@
 package shopping_cart;
 
+import static org.testng.util.Strings.isNullOrEmpty;
+
 public class PayPalPaymentMethod extends PaymentMethod {
     private String paypalEmail;
     private String paypalAuthToken;
@@ -7,7 +9,7 @@ public class PayPalPaymentMethod extends PaymentMethod {
     public PayPalPaymentMethod(String paypalEmail, String paypalAuthToken) {
         super("paypal");
 
-        if (paypalEmail == null || paypalAuthToken == null) {
+        if (isNullOrEmpty(paypalEmail) || isNullOrEmpty(paypalAuthToken)) {
             throw new IllegalArgumentException("Invalid PayPal details");
         }
 
