@@ -1,0 +1,6 @@
+projectKey=Outside-In
+serverUrl=http://localhost:9000
+serverVersion=10.6.0.92116
+dashboardUrl=http://localhost:9000/dashboard?id=Outside-In
+ceTaskId=7006c76d-ddc0-4959-a10c-ee9aa9cae701
+ceTaskUrl=http://localhost:9000/api/ce/task?id=7006c76d-ddc0-4959-a10c-ee9aa9cae701
