@@ -1,0 +1,1 @@
+mvn clean verify sonar:sonar \   -Dsonar.projectKey=Outside-In \   -Dsonar.projectName='Outside-In' \   -Dsonar.host.url=http://localhost:9000 \   -Dsonar.token=sqp_537b475524c9cc20e00801997f5f0182f736ba71
