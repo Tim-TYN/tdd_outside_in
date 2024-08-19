@@ -3304,20 +3304,22 @@ Explanation
 #### Question 1:
 
 ```java
-    @Test
-    public void testMergedProductNotInStockException() throws ProductNotInStock {
+    import human.shopping_cart.ProductNotInStock;
 
-    shoppingCartSystem.addProduct("Product2", 15);
-        verify(mockShopCatalog, times(1)).isProductAvailable("Product2", 15);
-        try {
-            shoppingCartSystem.addProduct("Product2", 12);
-            Assert.fail("Expected ProductNotInStock exception to be thrown");
-        } catch (shopping_cart.ProductNotInStock e) {
-            verify(mockShopCatalog, times(1)).isProductAvailable("Product2", 27);
-            Assert.assertEquals(e.getProductID(), "Product2");
-            Assert.assertEquals(e.getQuantity(), 27);
-        }
-    }
+@Test
+public void testMergedProductNotInStockException() throws ProductNotInStock {
+
+  shoppingCartSystem.addProduct("Product2", 15);
+  verify(mockShopCatalog, times(1)).isProductAvailable("Product2", 15);
+  try {
+    shoppingCartSystem.addProduct("Product2", 12);
+    Assert.fail("Expected ProductNotInStock exception to be thrown");
+  } catch (ProductNotInStock e) {
+    verify(mockShopCatalog, times(1)).isProductAvailable("Product2", 27);
+    Assert.assertEquals(e.getProductID(), "Product2");
+    Assert.assertEquals(e.getQuantity(), 27);
+  }
+}
 ```
 
 #### Answer 1:
@@ -3783,12 +3785,12 @@ Explanation
 ```java
 
 import chatGPT.shopping_cart.*;
+import human.shopping_cart.ProductNotInStock;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.testng.Assert;
 
 import static org.mockito.Mockito.*;
-import org.mockito.stubbing.Answer;
 
 public class ShoppingCartSystemTest {
     private ShoppingCartSystem shoppingCartSystem;
@@ -3805,15 +3807,18 @@ public class ShoppingCartSystemTest {
         when(mockShopCatalog.getProductPrice("Product2")).thenReturn(1.99);
         when(mockShopCatalog.getProductPrice("Product3")).thenReturn(5.99);
 
-        when(mockShopCatalog.isProductAvailable(eq("Product1"), anyInt())).thenAnswer((Answer`<Boolean>`) invocation -> {
+        when(mockShopCatalog.isProductAvailable(eq("Product1"), anyInt())).thenAnswer((Answer` < Boolean >`)
+        invocation -> {
             int quantity = invocation.getArgument(1);
             return quantity < 15;
         });
-        when(mockShopCatalog.isProductAvailable(eq("Product2"), anyInt())).thenAnswer((Answer`<Boolean>`) invocation -> {
+        when(mockShopCatalog.isProductAvailable(eq("Product2"), anyInt())).thenAnswer((Answer` < Boolean >`)
+        invocation -> {
             int quantity = invocation.getArgument(1);
             return quantity < 20;
         });
-        when(mockShopCatalog.isProductAvailable(eq("Product3"), anyInt())).thenAnswer((Answer`<Boolean>`) invocation -> {
+        when(mockShopCatalog.isProductAvailable(eq("Product3"), anyInt())).thenAnswer((Answer` < Boolean >`)
+        invocation -> {
             int quantity = invocation.getArgument(1);
             return quantity < 30;
         });
@@ -3824,7 +3829,7 @@ public class ShoppingCartSystemTest {
     public void testPriceQuery() throws ProductNotInStock {
         shoppingCartSystem.addProduct("Product1", 2);
 
-    verify(mockShopCatalog, times(1)).getProductPrice("Product1");
+        verify(mockShopCatalog, times(1)).getProductPrice("Product1");
     }
 
     @Test
@@ -3832,10 +3837,10 @@ public class ShoppingCartSystemTest {
         shoppingCartSystem.addProduct("Product1", 2);
         shoppingCartSystem.addProduct("Product1", 3);
 
-    ShoppingCart shoppingCart = shoppingCartSystem.viewCart();
+        ShoppingCart shoppingCart = shoppingCartSystem.viewCart();
         Assert.assertEquals(shoppingCart.getProducts().size(), 1, "The shopping cart should contain one product.");
 
-    Product addedProduct = shoppingCart.getProducts().get(0);
+        Product addedProduct = shoppingCart.getProducts().get(0);
         Assert.assertEquals(addedProduct.getProductID(), "Product1", "The product name should be 'Product1'.");
         Assert.assertEquals(addedProduct.getQuantity(), 5, "The product quantity should be 5.");
         Assert.assertEquals(addedProduct.getPrice(), 2.99, "The product price should be 2.99.");
@@ -3855,6 +3860,7 @@ public class ShoppingCartSystemTest {
     public void testAddEmptyProductName() throws ProductNotInStock {
         shoppingCartSystem.addProduct("", 2);
     }
+
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testAddNullProductName() throws ProductNotInStock {
         shoppingCartSystem.addProduct(null, 2);
@@ -3864,7 +3870,7 @@ public class ShoppingCartSystemTest {
     public void testGetTotalCost() throws ProductNotInStock {
         shoppingCartSystem.addProduct("Product1", 2);
         double totalCost = shoppingCartSystem.getTotalCost();
-        Assert.assertEquals(totalCost, 2.99 * 2 );
+        Assert.assertEquals(totalCost, 2.99 * 2);
         shoppingCartSystem.addProduct("Product2", 4);
         totalCost = shoppingCartSystem.getTotalCost();
         Assert.assertEquals(totalCost, 2.99 * 2 + 1.99 * 4);
@@ -3873,7 +3879,7 @@ public class ShoppingCartSystemTest {
     @Test
     public void testGetTotalCostWithNoProducts() {
         double totalCost = shoppingCartSystem.getTotalCost();
-        Assert.assertEquals(totalCost, 0 );
+        Assert.assertEquals(totalCost, 0);
     }
 
     @Test
@@ -3881,7 +3887,7 @@ public class ShoppingCartSystemTest {
         shoppingCartSystem.addProduct("Product1", 5);
         verify(mockShopCatalog, times(1)).isProductAvailable("Product1", 5);
 
-    shoppingCartSystem.addProduct("Product1", 3);
+        shoppingCartSystem.addProduct("Product1", 3);
         verify(mockShopCatalog, times(1)).isProductAvailable("Product1", 8);
     }
 
@@ -3900,12 +3906,12 @@ public class ShoppingCartSystemTest {
     @Test
     public void testMergedProductNotInStockException() throws ProductNotInStock {
 
-    shoppingCartSystem.addProduct("Product2", 15);
+        shoppingCartSystem.addProduct("Product2", 15);
         verify(mockShopCatalog, times(1)).isProductAvailable("Product2", 15);
         try {
             shoppingCartSystem.addProduct("Product2", 12);
             Assert.fail("Expected ProductNotInStock exception to be thrown");
-        } catch (shopping_cart.ProductNotInStock e) {
+        } catch (ProductNotInStock e) {
             verify(mockShopCatalog, times(1)).isProductAvailable("Product2", 27);
             Assert.assertEquals(e.getProductID(), "Product2");
             Assert.assertEquals(e.getQuantity(), 27);
@@ -4403,19 +4409,21 @@ chatGPT.shopping_cart.ProductNotInStock: Product Product2 is not in stock for qu
 	at com.intellij.rt.testng.RemoteTestNGStarter.main(RemoteTestNGStarter.java:105)
 
 ```java
-    @Test
-    public void testMergedProductNotInStockException() throws ProductNotInStock {
-        shoppingCartSystem.addProduct("Product2", 15);
-        verify(mockShopCatalog, times(1)).isProductAvailable("Product2", 15);
-        try {
-            shoppingCartSystem.addProduct("Product2", 12);
-            Assert.fail("Expected ProductNotInStock exception to be thrown");
-        } catch (shopping_cart.ProductNotInStock e) {
-            verify(mockShopCatalog, times(1)).isProductAvailable("Product2", 27);
-            Assert.assertEquals(e.getProductID(), "Product2");
-            Assert.assertEquals(e.getQuantity(), 27);
-        }
-    }
+    import human.shopping_cart.ProductNotInStock;
+
+@Test
+public void testMergedProductNotInStockException() throws ProductNotInStock {
+  shoppingCartSystem.addProduct("Product2", 15);
+  verify(mockShopCatalog, times(1)).isProductAvailable("Product2", 15);
+  try {
+    shoppingCartSystem.addProduct("Product2", 12);
+    Assert.fail("Expected ProductNotInStock exception to be thrown");
+  } catch (ProductNotInStock e) {
+    verify(mockShopCatalog, times(1)).isProductAvailable("Product2", 27);
+    Assert.assertEquals(e.getProductID(), "Product2");
+    Assert.assertEquals(e.getQuantity(), 27);
+  }
+}
 ```
 
 #### Answer 4:
@@ -5893,19 +5901,21 @@ Explanation
 #### Question 1:
 
 ```java
-    @Test
-    public void testChangedProductNotInStockException() throws ProductNotInStock {
-        shoppingCartSystem.addProduct("Product3", 22);
-        verify(mockShopCatalog, times(1)).isProductAvailable("Product3", 22);
-        try {
-            shoppingCartSystem.changeQuantityOfProduct("Product3", 50);
-            Assert.fail("Expected ProductNotInStock exception to be thrown");
-        } catch (shopping_cart.ProductNotInStock e) {
-            verify(mockShopCatalog, times(1)).isProductAvailable("Product3", 50);
-            Assert.assertEquals(e.getProductID(), "Product3");
-            Assert.assertEquals(e.getQuantity(), 50);
-        }
-    }
+    import human.shopping_cart.ProductNotInStock;
+
+@Test
+public void testChangedProductNotInStockException() throws ProductNotInStock {
+  shoppingCartSystem.addProduct("Product3", 22);
+  verify(mockShopCatalog, times(1)).isProductAvailable("Product3", 22);
+  try {
+    shoppingCartSystem.changeQuantityOfProduct("Product3", 50);
+    Assert.fail("Expected ProductNotInStock exception to be thrown");
+  } catch (ProductNotInStock e) {
+    verify(mockShopCatalog, times(1)).isProductAvailable("Product3", 50);
+    Assert.assertEquals(e.getProductID(), "Product3");
+    Assert.assertEquals(e.getQuantity(), 50);
+  }
+}
 ```
 
 #### Answer 1:
@@ -6261,48 +6271,50 @@ Explanation
 #### Question 3:
 
 ```java
-public class ShoppingCartSystemTest {
-    private ShoppingCartSystem shoppingCartSystem;
-    private ShopCatalog mockShopCatalog;
-    private PaymentService mockPaymentService;
+import human.shopping_cart.ProductNotInStock;
 
-    @BeforeMethod
-    public void setUp() {
-        mockShopCatalog = mock(ShopCatalog.class);
-        mockPaymentService = mock(PaymentService.class);
-        shoppingCartSystem = new ShoppingCartSystem(mockShopCatalog, mockPaymentService);
+public class ShoppingCartSystemTest {
+  private ShoppingCartSystem shoppingCartSystem;
+  private ShopCatalog mockShopCatalog;
+  private PaymentService mockPaymentService;
+
+  @BeforeMethod
+  public void setUp() {
+    mockShopCatalog = mock(ShopCatalog.class);
+    mockPaymentService = mock(PaymentService.class);
+    shoppingCartSystem = new ShoppingCartSystem(mockShopCatalog, mockPaymentService);
 
     when(mockShopCatalog.getProductPrice("Product1")).thenReturn(2.99);
-        when(mockShopCatalog.getProductPrice("Product2")).thenReturn(1.99);
-        when(mockShopCatalog.getProductPrice("Product3")).thenReturn(5.99);
+    when(mockShopCatalog.getProductPrice("Product2")).thenReturn(1.99);
+    when(mockShopCatalog.getProductPrice("Product3")).thenReturn(5.99);
 
-    when(mockShopCatalog.isProductAvailable(eq("Product1"), anyInt())).thenAnswer((Answer`<Boolean>`) invocation -> {
-            int quantity = invocation.getArgument(1);
-            return quantity < 15;
-        });
-        when(mockShopCatalog.isProductAvailable(eq("Product2"), anyInt())).thenAnswer((Answer`<Boolean>`) invocation -> {
-            int quantity = invocation.getArgument(1);
-            return quantity < 20;
-        });
-        when(mockShopCatalog.isProductAvailable(eq("Product3"), anyInt())).thenAnswer((Answer`<Boolean>`) invocation -> {
-            int quantity = invocation.getArgument(1);
-            return quantity < 30;
-        });
-    }
+    when(mockShopCatalog.isProductAvailable(eq("Product1"), anyInt())).thenAnswer((Answer` < Boolean >`)invocation -> {
+      int quantity = invocation.getArgument(1);
+      return quantity < 15;
+    });
+    when(mockShopCatalog.isProductAvailable(eq("Product2"), anyInt())).thenAnswer((Answer` < Boolean >`)invocation -> {
+      int quantity = invocation.getArgument(1);
+      return quantity < 20;
+    });
+    when(mockShopCatalog.isProductAvailable(eq("Product3"), anyInt())).thenAnswer((Answer` < Boolean >`)invocation -> {
+      int quantity = invocation.getArgument(1);
+      return quantity < 30;
+    });
+  }
 
-    @Test
-    public void testChangedProductNotInStockException() throws ProductNotInStock {
-        shoppingCartSystem.addProduct("Product3", 22);
-        verify(mockShopCatalog, times(1)).isProductAvailable("Product3", 22);
-        try {
-            shoppingCartSystem.changeQuantityOfProduct("Product3", 50);
-            Assert.fail("Expected ProductNotInStock exception to be thrown");
-        } catch (shopping_cart.ProductNotInStock e) {
-            verify(mockShopCatalog, times(1)).isProductAvailable("Product3", 50);
-            Assert.assertEquals(e.getProductID(), "Product3");
-            Assert.assertEquals(e.getQuantity(), 50);
-        }
+  @Test
+  public void testChangedProductNotInStockException() throws ProductNotInStock {
+    shoppingCartSystem.addProduct("Product3", 22);
+    verify(mockShopCatalog, times(1)).isProductAvailable("Product3", 22);
+    try {
+      shoppingCartSystem.changeQuantityOfProduct("Product3", 50);
+      Assert.fail("Expected ProductNotInStock exception to be thrown");
+    } catch (ProductNotInStock e) {
+      verify(mockShopCatalog, times(1)).isProductAvailable("Product3", 50);
+      Assert.assertEquals(e.getProductID(), "Product3");
+      Assert.assertEquals(e.getQuantity(), 50);
     }
+  }
 }
 ```
 
